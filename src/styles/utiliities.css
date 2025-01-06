@@ -1,0 +1,69 @@
+/* Установка базового размера */
+:root {
+  --spacing-small: 4px;
+  --spacing-medium: 8px;
+}
+
+/* Универсальные классы отступов */
+.m-t-1 {
+  margin-top: var(--spacing-small);
+}
+
+.m-t-2 {
+  margin-top: var(--spacing-medium);
+}
+
+.m-b-1 {
+  margin-bottom: var(--spacing-small);
+}
+
+.m-b-2 {
+  margin-bottom: var(--spacing-medium);
+}
+
+.m-l-1 {
+  margin-left: var(--spacing-small);
+}
+
+.m-l-2 {
+  margin-left: var(--spacing-medium);
+}
+
+.m-r-1 {
+  margin-right: var(--spacing-small);
+}
+
+.m-r-2 {
+  margin-right: var(--spacing-medium);
+}
+
+/* Дополнительные классы для всех сторон */
+.m-1 {
+  margin: var(--spacing-small);
+}
+
+.m-2 {
+  margin: var(--spacing-medium);
+}
+
+.mx-1 {
+  margin-left: var(--spacing-small);
+  margin-right: var(--spacing-small);
+}
+
+.mx-2 {
+  margin-left: var(--spacing-medium);
+  margin-right: var(--spacing-medium);
+}
+
+.my-1 {
+  margin-top: var(--spacing-small);
+  margin-bottom: var(--spacing-small);
+}
+
+.my-2 {
+  margin-top: var(--spacing-medium);
+  margin-bottom: var(--spacing-medium);
+}
+
+  
