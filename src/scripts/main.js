@@ -12,6 +12,11 @@ const handleLogin = async (event) => {
     password
   }
 
+   // {
+  //   "email": "miller@gmail.com",
+  //   "password": "asdasd"
+  // }
+
   const result = await api.auth.login(credentials);
 
   if (result.accessToken && result.user) {
@@ -64,7 +69,6 @@ function createLoginLayout() {
 
   header.appendChild(link);
 
-  // Append elements to the DOM
   form.appendChild(inputEmail);
   form.appendChild(inputPassword);
   form.appendChild(buttonLogin);

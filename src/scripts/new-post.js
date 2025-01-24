@@ -1,104 +1,93 @@
-import { api } from './apis/api.js'
+import { UI } from './utils.js';
+import { api } from './apis/api.js';
 import { Storage } from "./utils/storage.js";
 
-function createForm() {
-  const container = UI.createElement("div", { class: "container-root" }, [
-    UI.createElement("header", { class: "header" }, [
-      UI.createElement("a", { href: "home.html" }, "Home"),
-    ]),
-    UI.createElement("form", { class: "form-wrapper" }, [
-      UI.createElement("div", { class: "create-form-container" }, [
-        UI.createElement("input", {
-          type: "text",
-          id: "postTitle",
-          name: "postTitle",
-          placeholder: "Enter post title",
-        }),
-        UI.createElement("textarea", {
-          id: "postStory",
-          name: "postStory",
-          placeholder: "Enter your story here",
-          rows: "5",
-          cols: "50",
-        }),
-        UI.createElement("input", {
-          id: "file-upload",
-          type: "file",
-        }),
-        UI.createElement("div", { class: "" }, [
-          UI.createElement("button", { id: "create-new-post" }, "Create Post"),
+function addSubmitListener() {
+    const postForm = document.getElementById('postForm');
+    postForm.addEventListener('submit', handleSubmit);
+}
+
+function handleSubmit(event) {
+    event.preventDefault();
+
+    const title = document.getElementById('title').value;
+    const story = document.getElementById('story').value;
+    const fileInput = document.getElementById('file-upload');
+    const file = fileInput.files[0];
+
+    if (!file || !isValidImageFile(file)) {
+        alert('Please upload a valid image file (.jpg, .jpeg, .png, .gif)');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function () {
+        const imageLink = reader.result; 
+        const post = createPost(title, story, imageLink);
+        savePostToApi(post);  
+        goToHomePage();
+    };
+    reader.readAsDataURL(file);
+}
+
+function isValidImageFile(file) {
+    return /\.(jpeg|jpg|gif|png)$/i.test(file.name);
+}
+
+function createPost(title, story, imageLink) {
+    return {
+        title: title,
+        story: story,
+        img: imageLink  
+    };
+}
+
+function savePostToApi(post) {
+    api.post.createPost(post)
+        .then(response => {
+            console.log('Post created:', response);
+            if (response && response.id) {
+                console.log('Post added successfully!');
+                goToHomePage();  
+            }
+        })
+        .catch(err => {
+            console.error('Error creating post:', err);
+        });
+}
+
+
+function goToHomePage() {
+    window.location.href = '/home.html'; 
+}
+
+function deleteAllPosts() {
+    localStorage.removeItem('posts');
+}
+
+function initializePage() {
+    const container = UI.createElement('div', { class: 'container-root' }, [
+        UI.createElement('header', { class: 'header' }, [
+            UI.createElement('a', { class: 'btn', href: "/home.html" }, 'Home')
         ]),
-      ]),
-    ]),
-  ]);
+        UI.createElement('div', { id: "createPost" }, [
+            UI.createElement('h1', { class: "heading" }, 'Create Post'),
+            UI.createElement('div', { class: "form-wrapper" }, [
+                UI.createElement('form', { id: "postForm" }, [
+                    UI.createElement('label', { for: "title" }, "Title"),
+                    UI.createElement('input', { type: "text", id: "title", name: "title", class: "input" }),
+                    UI.createElement('label', { for: "story" }, "Story"),
+                    UI.createElement('textarea', { id: "story", name: "story", class: "input" }),
+                    UI.createElement('label', { for: "file-upload" }, "Upload Image"),
+                    UI.createElement('input', { type: "file", id: "file-upload", class: "file-upload" }),
+                    UI.createElement('button', { type: "submit", class: "btn" }, 'Create')
+                ])
+            ])
+        ])
+    ]);
 
-  UI.render(container, document.body);
-
-  const createPostForm = document.getElementById("create-new-post");
-  createPostForm.addEventListener("click", createPostHandler);
+    UI.render(container, document.querySelector('body'));
+    addSubmitListener();
 }
 
-function initApplicants() {
-  createForm();
-
-  const queryString = window.location.search;
-  const searchParams = new URLSearchParams(queryString);
-
-  if (searchParams.has("id")) {
-    const postId = searchParams.get("id");
-
-    api.post.getPostById(postId).then(post => {
-      document.getElementById("postTitle").value = post.title;
-      document.getElementById("postStory").value = post.story;
-      document.getElementById("postImage").value = post.img ? post.img : "";   
-    }).catch(() => {
-      window.location.assign("home.html");
-    })
-  }
-
-}
-
-initApplicants();
-
-
-async function createPostHandler(event) {
-  event.preventDefault();
-
-  const title = document.getElementById("postTitle").value.trim();
-  const story = document.getElementById("postStory").value.trim();
-  const fileUpload = document.getElementById("file-upload");
-
-  const uploadedFile = await api.fileUpload.upload(fileUpload.files[0]);
-
-  if (!title || !story || !fileUpload.files.length) {
-    alert("Please fill in all fields.");
-    return;
-  }
-
-  const user = Storage.getItem('user');
-
-  const newPost = {
-    title,
-    story,
-    authorName: user.username, 
-    img: uploadedFile.url,
-    userId: user.id
-  };
-
-  const queryString = window.location.search;
-  const searchParams = new URLSearchParams(queryString);
-  const id = searchParams.get("id");
-
-
-  if (id) {
-    api.post.update(id, newPost).then((post) => {
-      console.log(post);
-      window.location.assign("home.html");  
-    })
-  } else {
-    api.post.create(newPost).then((post) => {
-      console.log(post);
-      window.location.assign("home.html");  
-    })
-  }
-}
+initializePage();

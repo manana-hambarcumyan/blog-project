@@ -1,10 +1,8 @@
-/* Установка базового размера */
 :root {
   --spacing-small: 4px;
   --spacing-medium: 8px;
 }
 
-/* Универсальные классы отступов */
 .m-t-1 {
   margin-top: var(--spacing-small);
 }
